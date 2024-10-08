@@ -1,5 +1,7 @@
 "use client"
 import React, { useState, useEffect } from "react";
+import { toast ,ToastContainer} from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; 
 import { MoonPayAuthSDK, LoginComponents, OAuthProviders } from "@moonpay/auth-sdk";
 
 
@@ -18,10 +20,13 @@ const sdk = new MoonPayAuthSDK(apiKey, {
         isMainnet: false,
     }
 });
+
+
 interface LogoutProps {
-  setIsLoggedIn: (isLoggedIn: boolean) => void; // Function that sets login state
+  setIsLoggedIn: (isLoggedIn: boolean) => void; 
 }
 function Login({ setIsLoggedIn}: LogoutProps) {
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
     useEffect(() => {
         const initializeSdk = async () => {
             await sdk.init();
@@ -45,18 +50,31 @@ function Login({ setIsLoggedIn}: LogoutProps) {
     };
 
     const handleLogin = async () => {
-        try {
-            const loginResult = await sdk.login.show();
-            if (loginResult && loginResult.success) {
-                setIsLoggedIn(true);
-                await generateWallets();
-            } else {
-                console.error('Login failed:', loginResult);
-            }
-        } catch (error) {
-            console.error('Error during login:', error);
-        }
-    };
+      if (isLoggingIn) return; // Prevent multiple login attempts
+      setIsLoggingIn(true); // Set logging in state to true
+      try {
+          const loginResult = await sdk.login.show();
+          if (loginResult && loginResult.success) {
+              setIsLoggedIn(true);
+              await generateWallets();
+              toast.success('You are successfully logged in with MoonPay!', {
+                  autoClose: 5000,
+                  className: 'vip-toast'
+              });
+          } else {
+              console.error('Login failed:', loginResult);
+          }
+      } catch (error) {
+          console.error('Error during login:', error);
+          toast.error('Login failed. Please try again.', { 
+              autoClose: 5000,
+              className: 'vip-toast'
+          });
+      } finally {
+          setIsLoggingIn(false); // Reset logging in state
+      }
+  };
+  
 
     return (
         <div className="login-container">
@@ -79,6 +97,7 @@ function Logout({ setIsLoggedIn }: LogoutProps) {
 
 const Home = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    
 
     return (
         <div className="App">
@@ -92,6 +111,16 @@ const Home = () => {
                     <Login setIsLoggedIn={setIsLoggedIn} />
                 )}
             </div>
+            <ToastContainer 
+                position="top-center" // Center toast notifications at the top
+                autoClose={3000} // Auto close after 3 seconds
+                hideProgressBar={true} // Hide the progress bar for a cleaner look
+                closeOnClick
+                pauseOnHover
+                draggable
+                theme="colored" // Use a colored theme for better visibility
+                style={{ fontSize: '16px' }} // Custom styling (optional)
+            />
         </div>
     );
 };

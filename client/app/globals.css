@@ -51,3 +51,13 @@ body {
   margin-bottom: 15px;
   color: #333;
 }
+/* styles/globals.css */
+.vip-toast {
+  background-color: #28a745; /* Green background for success */
+  color: white; /* White text */
+  font-weight: bold; /* Bold text */
+  border-radius: 8px; /* Rounded corners */
+  padding: 15px; /* Padding */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Shadow effect */
+}
+
